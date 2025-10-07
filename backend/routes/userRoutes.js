@@ -4,7 +4,14 @@ const userController = require('../controllers/userController');
 
 router.get('/products', userController.getProducts);
 router.get('/image/:filename', userController.getProductImage);
+
 router.get('/tables', userController.getTables);
 router.get('/uploads/:filename', userController.getTableImage);
+
+// 🛒 Cart routes
+router.post('/cart', userController.addToCart);
+router.get('/cart', userController.getCart);
+router.post('/cart/update', userController.updateCartItem);
+router.post('/cart/remove', userController.removeCartItem); // ✅ FIXED
 
 module.exports = router;

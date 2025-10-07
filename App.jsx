@@ -32,6 +32,7 @@ export default function App() {
         <Stack.Screen name="UserReview" component={UserReview} options={{ title: 'UserReview' }} />
         <Stack.Screen name="UserTable" component={UserTable} options={{ title: 'UserTable' }} />
         <Stack.Screen name="UserOrder" component={UserOrder} options={{ title: 'UserOrder' }} />
+        <Stack.Screen name="Cart" component={Cart} options={{ title: 'My Cart' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
