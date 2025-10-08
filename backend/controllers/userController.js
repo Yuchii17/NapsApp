@@ -3,6 +3,23 @@ const Grid = require('gridfs-stream');
 const Product = require('../models/Product');
 const Table = require('../models/Table');
 const Cart = require('../models/Cart');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const Order = require('../models/Order');
+const User = require('../models/User');
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(__dirname, '../uploads/payments');
+    fs.mkdirSync(uploadDir, { recursive: true });
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  },
+});
+exports.uploadProof = multer({ storage }).single('proofOfPayment');
 
 let gfs;
 const conn = mongoose.connection;
@@ -212,5 +229,61 @@ exports.removeCartItem = async (req, res) => {
   } catch (err) {
     console.error('Error removing item:', err);
     res.status(500).json({ message: 'Server error while removing item' });
+  }
+};
+
+exports.placeOrder = async (req, res) => {
+  try {
+    const { userId, items, total, payment } = req.body;
+    if (!userId) return res.status(400).json({ message: 'User ID is required.' });
+
+    // ✅ Fetch user credentials
+    const user = await User.findById(userId).select('firstName lastName address contactNo email');
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+
+    // ✅ File handling (uploaded proof)
+    let proofPath = '';
+    if (req.file) {
+      proofPath = `/uploads/payments/${req.file.filename}`;
+    }
+
+    // ✅ Map cart items
+    const orderItems = JSON.parse(items).map((item) => ({
+      productId: item.productId,
+      quantity: item.quantity,
+    }));
+
+    // ✅ Create new order
+    const newOrder = new Order({
+      userId,
+      userDetails: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        address: user.address,
+        contactNo: user.contactNo,
+        email: user.email,
+      },
+      items: orderItems,
+      grossTotal: total,
+      netTotal: total,
+      payment: {
+        method: payment?.method || 'GCash',
+        referenceNumber: payment?.referenceNumber || '',
+        proofOfPayment: proofPath, // ✅ File path from multer
+      },
+      status: 'processing',
+    });
+
+    await newOrder.save();
+    await Cart.deleteMany({ userId });
+
+    res.status(200).json({
+      message: 'Order placed successfully.',
+      order: newOrder,
+      user,
+    });
+  } catch (err) {
+    console.error('Place Order Error:', err);
+    res.status(500).json({ message: 'Server error placing order.' });
   }
 };

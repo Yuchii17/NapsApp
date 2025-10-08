@@ -13,7 +13,9 @@ import UserMenu from './app/UserMenu';
 import UserReservation from './app/UserReservation';
 import UserReview from './app/UserReview';
 import UserOrder from './app/UserOrder';
-import UserProfile from './app/UserProfile'; 
+import UserProfile from './app/UserProfile';
+import Cart from './app/Cart';
+import PlaceOrder from './app/PlaceOrder'; // ✅ Added import
 
 const Stack = createNativeStackNavigator();
 
@@ -23,7 +25,7 @@ export default function App() {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
         <Stack.Screen name="Login" component={Login} options={{ title: 'Login' }} />
-        <Stack.Screen name="Register" component={Register} options={{ title: 'Register ' }} />
+        <Stack.Screen name="Register" component={Register} options={{ title: 'Register' }} />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         <Stack.Screen name="UserProfile" component={UserProfile} options={{ title: 'UserProfile' }} />
         <Stack.Screen name="UserDashboard" component={UserDashboard} options={{ title: 'UserDashboard' }} />
@@ -33,6 +35,11 @@ export default function App() {
         <Stack.Screen name="UserTable" component={UserTable} options={{ title: 'UserTable' }} />
         <Stack.Screen name="UserOrder" component={UserOrder} options={{ title: 'UserOrder' }} />
         <Stack.Screen name="Cart" component={Cart} options={{ title: 'My Cart' }} />
+        <Stack.Screen
+          name="PlaceOrder"
+          component={PlaceOrder}
+          options={{ title: 'Place Order', headerShown: true }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
